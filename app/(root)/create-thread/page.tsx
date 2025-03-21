@@ -3,8 +3,7 @@ import { fetchUser } from "@/lib/actions/user.action";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-
-export const page = async () => {
+ const page = async () => {
     const user = await currentUser();
 
     if(!user) return null;
@@ -21,3 +20,4 @@ export const page = async () => {
   )
 }
 
+export default page
