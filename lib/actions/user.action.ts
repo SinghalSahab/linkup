@@ -21,7 +21,7 @@ interface Params {
     username,
     image,
   }: Params):Promise<void> => {
-    connectToDB();
+   await connectToDB();
 
     try {
         await User.findOneAndUpdate(
@@ -47,7 +47,7 @@ interface Params {
 
 export const fetchUser = async(userId:string) => {
     try {
-        connectToDB();
+        await connectToDB();
 
     return await User.findOne({ id: userId })
     // .populate({

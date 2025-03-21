@@ -12,7 +12,7 @@ interface Params{
 }
 
 export async function createthread({text,author,communityId,path}:Params){
-    connectToDB();
+    await connectToDB();
 
 
     const createdThread = await Thread.create({
@@ -26,4 +26,35 @@ export async function createthread({text,author,communityId,path}:Params){
       })
 
       revalidatePath(path);
+}
+
+export const fetchPosts = async (pageNumber = 1, pageSize = 20) => {
+    await connectToDB();
+
+    const skipAmount = (pageNumber-1)*pageSize;
+    const postQuery = Thread.find({parentId:{$in:[null,undefined]}})
+    .sort({createdAt:'desc'})
+    .skip(skipAmount)
+    .limit(pageSize)
+    .populate({path: "author" , model: User})
+    .populate({
+      path:'children',
+      options: { limit: 5 },
+      populate:{
+        path:'author',
+        model: User,
+        select: "_id name parentId image"
+      }
+    })
+
+    const totalPostsCount = await Thread.countDocuments(({
+      parentId: { $in: [null, undefined] }
+    }));
+
+
+    const posts = await postQuery.exec();
+
+    const isNext = skipAmount + posts.length < totalPostsCount;
+
+    return {posts,isNext}
 }
